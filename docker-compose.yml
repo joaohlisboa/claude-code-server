@@ -1,0 +1,14 @@
+services:
+  claude-code-server:
+    build: .
+    ports:
+      - "8081:8080"
+    volumes:
+      # Persist Claude authentication between container recreations
+      - claude-auth:/root/.claude
+      # optional: mount a repo so Claude can read code
+      # - ./your-repo:/workspace
+
+# Named volume for persistent authentication
+volumes:
+  claude-auth:
