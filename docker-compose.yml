@@ -3,6 +3,9 @@ services:
     build: .
     ports:
       - "8888:8888"
+    environment:
+      # Enable verbose mode to see Claude's thinking process (true/false)
+      - VERBOSE=true
     volumes:
       # Persist Claude authentication between container recreations
       - claude-auth:/root/.claude

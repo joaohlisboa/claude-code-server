@@ -9,6 +9,9 @@ HTTP API wrapper for Claude Code CLI in a Docker container.
 - 💾 Authentication persists permanently using Docker volumes
 - 📁 Optional workspace mounting for code access
 - 🛡️ Simple HTTP API interface
+- 📊 Human-friendly logging with clear sections
+- 🔍 Shows full prompts, verbose Claude output, and responses
+- ⏱️ Performance metrics and duration tracking
 
 ## Quick Start
 
