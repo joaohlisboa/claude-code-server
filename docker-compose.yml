@@ -2,10 +2,13 @@ services:
   claude-code-server:
     build: .
     ports:
-      - "8081:8080"
+      - "8888:8888"
     volumes:
       # Persist Claude authentication between container recreations
       - claude-auth:/root/.claude
+      # Mount local CLAUDE.md and MCP file (read-only)
+      - ~/.claude/CLAUDE.md:/root/.claude/CLAUDE.md:ro
+      - .claude.json:/root/.claude.json
       # optional: mount a repo so Claude can read code
       # - ./your-repo:/workspace
 

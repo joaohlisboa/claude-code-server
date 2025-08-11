@@ -31,14 +31,14 @@ exit
 
 Test request:
 ```bash
-curl -X POST http://localhost:8081/run \
+curl -X POST http://localhost:8888/claude \
   -H 'Content-Type: application/json' \
   -d '{"prompt":"hello world"}'
 ```
 
 ## API
 
-**POST /run**
+**POST /claude**
 ```json
 {"prompt": "Your prompt", "args": ["--optional"], "cwd": "/workspace"}
 ```

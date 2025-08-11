@@ -11,8 +11,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY server.js .
 
-ENV PORT=8080
-EXPOSE 8080
+ENV PORT=8888
+EXPOSE 8888
 
 # Use dumb-init so SIGTERM/SIGINT behave in containers
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]

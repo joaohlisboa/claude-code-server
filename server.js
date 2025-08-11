@@ -8,11 +8,11 @@ app.use(express.json({ limit: "10mb" }));
 app.get("/healthz", (req, res) => res.json({ ok: true }));
 
 /**
- * POST /run
+ * POST /claude
  * body: { prompt: string, args?: string[], cwd?: string }
  * Runs: claude -p "<prompt>" --output-format json ...args
  */
-app.post("/run", (req, res) => {
+app.post("/claude", (req, res) => {
   const { prompt, args = [], cwd } = req.body || {};
   if (typeof prompt !== "string" || !prompt.trim()) {
     return res.status(400).json({ error: "prompt is required" });
@@ -49,8 +49,8 @@ app.post("/run", (req, res) => {
   });
 });
 
-const port = Number(process.env.PORT || 8080);
+const port = Number(process.env.PORT || 8888);
 app.listen(port, () => {
   console.log(`[server] listening on :${port}`);
-  console.log(`[server] try: curl -X POST http://localhost:${port}/run -H 'Content-Type: application/json' -d '{"prompt":"hello"}'`);
+  console.log(`[server] try: curl -X POST http://localhost:${port}/claude -H 'Content-Type: application/json' -d '{"prompt":"hello"}'`);
 });
