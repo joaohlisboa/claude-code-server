@@ -12,6 +12,8 @@ services:
       # Mount local CLAUDE.md and MCP file (read-only)
       - ~/.claude/CLAUDE.md:/root/.claude/CLAUDE.md:ro
       - .claude.json:/root/.claude.json
+      # Mount WhatsApp MCP and its database
+      - ../whatsapp-mcp:/whatsapp-mcp
       # optional: mount a repo so Claude can read code
       # - ./your-repo:/workspace
 

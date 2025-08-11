@@ -1,9 +1,10 @@
 FROM node:20-bookworm
 
-# Install Claude Code CLI globally
+# Install Claude Code CLI globally and Python tools
 RUN npm install -g @anthropic-ai/claude-code && \
-    apt-get update && apt-get install -y --no-install-recommends dumb-init && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get update && apt-get install -y --no-install-recommends dumb-init python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip3 install --break-system-packages uv
 
 # App files
 WORKDIR /app

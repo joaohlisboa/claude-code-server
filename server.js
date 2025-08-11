@@ -151,8 +151,12 @@ app.post("/claude", (req, res) => {
     return res.status(400).json({ error: "prompt is required" });
   }
 
+  // Prepend current date to the prompt
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const promptWithDate = `Today's date is ${today}. ${prompt}`;
+
   // Build argv - add --verbose if requested
-  const argv = ["-p", prompt, "--output-format", "json"];
+  const argv = ["-p", promptWithDate, "--output-format", "json"];
   if (USE_VERBOSE) {
     argv.push("--verbose");
   }
