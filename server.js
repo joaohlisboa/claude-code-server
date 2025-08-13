@@ -1,6 +1,7 @@
 import express from "express";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { formatVerboseOutput } from "./verboseFormatter.js";
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
@@ -19,89 +20,6 @@ function logSubSection(title) {
   console.log(`\n${line}`);
   console.log(`${title}`);
   console.log(line);
-}
-
-function formatVerboseOutput(jsonLine) {
-  try {
-    const data = JSON.parse(jsonLine);
-    
-    // System initialization
-    if (data.type === 'system' && data.subtype === 'init') {
-      return `🔧 System initialized\n   Session: ${data.session_id}\n   Model: ${data.model}`;
-    }
-    
-    // Assistant messages (Claude's thinking/responses)
-    if (data.type === 'assistant' && data.message) {
-      const msg = data.message;
-      let output = '';
-      
-      if (msg.content) {
-        for (const content of msg.content) {
-          if (content.type === 'text') {
-            // Claude's text response
-            output += `\n💭 Claude: ${content.text}\n`;
-          } else if (content.type === 'tool_use') {
-            // Tool usage - simplify MCP tool names
-            const toolName = content.name
-              .replace(/^mcp__[^_]+__/, '') // Remove MCP prefix
-              .replace(/_/g, ' ');
-            output += `\n🔧 Using tool: ${toolName}\n`;
-            if (content.input && Object.keys(content.input).length > 0) {
-              const params = Object.entries(content.input)
-                .filter(([k, v]) => k !== 'user_google_email' && v !== null && v !== undefined)
-                .map(([k, v]) => `   ${k}: ${JSON.stringify(v)}`)
-                .join('\n');
-              if (params) output += params + '\n';
-            }
-          }
-        }
-      }
-      
-      return output;
-    }
-    
-    // User messages (tool results)
-    if (data.type === 'user' && data.message) {
-      const msg = data.message;
-      if (msg.content) {
-        for (const content of msg.content) {
-          if (content.type === 'tool_result' && content.content) {
-            const text = content.content[0]?.text;
-            if (text) {
-              // Truncate long results but keep key information
-              const lines = text.split('\n');
-              if (lines.length > 5) {
-                return `📊 Tool result: ${lines[0]}\n   [...${lines.length - 1} more lines...]`;
-              }
-              return `📊 Tool result: ${text.replace(/\n/g, '\n   ')}`;
-            }
-          }
-        }
-      }
-    }
-    
-    // Final result
-    if (data.type === 'result') {
-      let output = '';
-      if (data.is_error) {
-        output = `\n❌ Error: ${data.result || 'Unknown error'}`;
-      } else {
-        output = `\n✅ Success`;
-        if (data.duration_ms) {
-          output += ` (${(data.duration_ms / 1000).toFixed(1)}s)`;
-        }
-        if (data.total_cost_usd) {
-          output += ` - Cost: $${data.total_cost_usd.toFixed(4)}`;
-        }
-      }
-      return output;
-    }
-    
-    return null;
-  } catch (e) {
-    // Not JSON or parsing error, return null to skip
-    return null;
-  }
 }
 
 app.use((req, res, next) => {
@@ -152,11 +70,17 @@ app.post("/claude", (req, res) => {
   }
 
   // Prepend current date to the prompt
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-  const promptWithDate = `Today's date is ${today}. ${prompt}`;
+  const today = new Date().toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  }); // e.g., "Monday, August 11, 2025"
+  const promptWithDate = `${today}: ${prompt}`;
 
-  // Build argv - add --verbose if requested
-  const argv = ["-p", promptWithDate, "--output-format", "json"];
+  // Build argv - add --model sonnet and --verbose if requested
+  const argv = ["-p", promptWithDate, "--output-format", "json", "--model", "sonnet"];
   if (USE_VERBOSE) {
     argv.push("--verbose");
   }
